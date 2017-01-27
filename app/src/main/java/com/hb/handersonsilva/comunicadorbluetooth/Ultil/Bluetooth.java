@@ -26,6 +26,7 @@ public class Bluetooth {
 
     //Verificar se o aparelho suporta bluetooth
     public BluetoothAdapter verificarBluetooth(){
+
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if(mBluetoothAdapter == null){
             Toast.makeText(context,"Seu dispositivo não possui bluetooth",Toast.LENGTH_SHORT).show();
@@ -39,6 +40,7 @@ public class Bluetooth {
     }
 
     public Set<BluetoothDevice> dispositvosPareados(){
+
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         Set<BluetoothDevice> listDispositivos = mBluetoothAdapter.getBondedDevices();
 

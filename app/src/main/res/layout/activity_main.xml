@@ -20,8 +20,46 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Conectar"
         android:id="@+id/button_Conectar"
         android:layout_below="@+id/button_verificar"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:text="Procurar" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/textView_StatusM"
+        android:layout_alignBaseline="@+id/button_AtivarServer"
+        android:layout_alignBottom="@+id/button_AtivarServer"
+        android:layout_toRightOf="@+id/button_AtivarServer"
+        android:layout_toEndOf="@+id/button_AtivarServer" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/textView_textData"
+        android:text="----"
+        android:layout_below="@+id/button_AtivarServer"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <Button
+        android:text="Ativar Server"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/button_AtivarServer"
+        android:layout_marginTop="19dp"
+        android:layout_below="@+id/button_Conectar"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:text="Servidor------------------------------------"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/button_Conectar"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:id="@+id/textView3" />
+
 </RelativeLayout>
