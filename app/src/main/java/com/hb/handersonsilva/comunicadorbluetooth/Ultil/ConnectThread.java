@@ -1,6 +1,7 @@
 package com.hb.handersonsilva.comunicadorbluetooth.Ultil;
 
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.os.Bundle;
@@ -19,6 +20,7 @@ public class ConnectThread extends Thread{
 
     BluetoothServerSocket myServerSocket =null;
     BluetoothSocket myBtSocket =null;
+    BluetoothAdapter myBluetoothAdapter=null;
     String btAdress = null;
     String myUUID ="00001101-0000-1000-8000-00805F9B34FB";
     Boolean server = false;
@@ -38,27 +40,26 @@ public class ConnectThread extends Thread{
 
     public  void run(){
         this.running = true;
-        BluetoothAdapter myBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+         myBluetoothAdapter= BluetoothAdapter.getDefaultAdapter();
 
         if(this.server){
+            //Sever
 
             try {
                 //O objetivo do soquete do servidor é ouvir solicitações
                 // de conexão de entrada e, quando uma for aceita, fornecer um BluetoothSocket conectado.
                 myServerSocket = myBluetoothAdapter.listenUsingInsecureRfcommWithServiceRecord("Comunicador Bluetooth", UUID.fromString(myUUID));
-                while (running){
-                    try {
-                        myBtSocket = myServerSocket.accept();
-                    }catch (IOException e){
-                        break;
-                    }
-                    //excluindo o Server
-                    if(myBtSocket!= null){
-                        myServerSocket.close();
-                        break;
-                    }
-                }
 
+
+                toMainActivity("---C".getBytes());
+                myBtSocket = myServerSocket.accept();
+
+                //excluindo o Server
+                if(myBtSocket!= null) {
+                    myServerSocket.close();
+                    toMainActivity("---B".getBytes());
+
+                }
 
             }catch (IOException e){
                       /*  Caso ocorra alguma exceção, exibe o stack trace para debug.
@@ -68,6 +69,29 @@ public class ConnectThread extends Thread{
                 e.printStackTrace();
                 toMainActivity("---N".getBytes());
             }
+        }else {
+            //Cliente
+            try {
+
+                //criando a comunicação cliente
+                BluetoothDevice btDevice = myBluetoothAdapter.getRemoteDevice(btAdress);
+                myBtSocket = btDevice.createRfcommSocketToServiceRecord(UUID.fromString(myUUID));
+                //Cancelar descoberta
+               // myBluetoothAdapter.cancelDiscovery();
+
+
+                //conectando .....
+                if(myBtSocket!=null){
+                    myBtSocket.connect();
+                    toMainActivity("---CLIENT".getBytes());
+                }
+
+
+            }catch (IOException erro){
+                erro.printStackTrace();
+                toMainActivity("---CLIERRO".getBytes());
+            }
+
         }
     }
 
@@ -85,10 +109,14 @@ public class ConnectThread extends Thread{
         try {
 
             running = false;
-            myServerSocket.close();
+            if(myServerSocket!=null){
+                myServerSocket.close();
+            }
+
             if(myBtSocket!=null){
                 myBtSocket.close();
             }
+            toMainActivity("---D".getBytes());
 
 
         } catch (IOException e) {

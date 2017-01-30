@@ -1,6 +1,7 @@
 package com.hb.handersonsilva.comunicadorbluetooth;
 
 import android.app.Activity;
+import android.app.LoaderManager;
 import android.os.Handler;
 import android.os.Bundle;
 import android.os.Message;
@@ -27,9 +28,10 @@ public class MainActivity extends AppCompatActivity {
     private static final int ATIVA_BLUETOOTH =1;
     private static final int ABRIR_LISTA =2;
     private  int opButton = 1;
-    final  boolean conexao = false;
+    final  boolean conexao = true;
     private  static String MAC = null;
     static TextView statusMessage;
+    static  TextView statusCliente;
     static TextView textSpace;
     ConnectThread connect;
 
@@ -38,65 +40,60 @@ public class MainActivity extends AppCompatActivity {
             super.onCreate(savedInstanceState);
             setContentView(R.layout.activity_main);
 
-            Button btnVerificar = (Button)findViewById(R.id.button_verificar);
-            Button btnProcurar = (Button)findViewById(R.id.button_Conectar);
+            Button btnClientConexao= (Button)findViewById(R.id.button_Cliente_Conexao);
             Button btnConectar = (Button)findViewById(R.id.button_AtivarServer);
             statusMessage = (TextView)findViewById(R.id.textView_StatusM);
-            textSpace = (TextView)findViewById(R.id.textView_textData);
+            statusCliente = (TextView)findViewById(R.id.textView_statusClient);
             context = getApplicationContext();
 
+            //Solicita que o bluetooth seja ligado caso contrario fecha o app
+            this.ativarBluetooth();
+           //Instanciando a class ConnectThread
 
-           //botão verificar
-            btnVerificar.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Bluetooth bluetooth = new Bluetooth(context);
-                    mBluetoothAdapter = bluetooth.verificarBluetooth();
+          btnClientConexao.setOnClickListener(new View.OnClickListener() {
+              @Override
+              public void onClick(View v) {
+                  Button btnClientConexao= (Button)findViewById(R.id.button_Cliente_Conexao);
+                 if(conexao){
+                     if (opButton == 0) {
+                        // if(connect.isAlive()){
+                             connect.cancel();
+                             btnClientConexao.setText("Ativar Cliente");
+                             opButton=1;
 
-                    Intent ativarBluetooth = new Intent(mBluetoothAdapter.ACTION_REQUEST_ENABLE);//ativar o bluetooth caso esteja desligado
-                    startActivityForResult(ativarBluetooth,ATIVA_BLUETOOTH);
+                        /* }else{
+                             Toast.makeText(getApplicationContext(),"Não existe conexao",Toast.LENGTH_SHORT).show();
+                         }*/
 
-                }
-            });
-            //botão procurar
-            btnProcurar.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if(conexao){
-                        //desconectar
-                    }else{
-                        //conectar
-                        Intent abrirLista = new Intent(MainActivity.this, ListarDispositivosP.class);
-                        startActivityForResult(abrirLista,ABRIR_LISTA);
-                    }
-                }
-            });
+                     } else {
+
+                         Intent abrirLista = new Intent(MainActivity.this, ListarDispositivosP.class);
+                         startActivityForResult(abrirLista,ABRIR_LISTA);
+                         opButton=0;
+                     }
+                 }
+              }
+          });
+
             //Botão que chama a thread
-            connect = new ConnectThread();
+
             btnConectar.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
 
-                    //colocar uma condição ao tentar startar o server bluetooth tem que esta ativo
                     Button btnConectar = (Button) findViewById(R.id.button_AtivarServer);
 
                     if (opButton == 0) {
-
                             connect.cancel();
                             btnConectar.setText("Ativar Server");
                             opButton=1;
                             connect = new ConnectThread();
                     } else {
+                            connect = new ConnectThread();
                              connect.start();
                             if(connect.isAlive()){
-                                if(connect.isInterrupted()){
-                                    Toast.makeText(getApplicationContext(),"Ative seu Bluetooth",Toast.LENGTH_SHORT).show();
-                                    btnConectar.setText("Ativar Server");
-                                    opButton =1;
-                                }else {
-                                    btnConectar.setText("Desativar");
-                                    opButton =0;
-                                }
+                                btnConectar.setText("Desativar");
+                                opButton =0;
 
                             }else {
 
@@ -104,20 +101,19 @@ public class MainActivity extends AppCompatActivity {
                                 opButton =1;
                             }
 
-
-
-
-
                     }
-
-
-
-
                 }
             });
     }
 
-    @Override
+  public void ativarBluetooth()
+  {
+      Bluetooth bluetooth = new Bluetooth(context);
+      mBluetoothAdapter = bluetooth.verificarBluetooth();
+
+      Intent ativarBluetooth = new Intent(mBluetoothAdapter.ACTION_REQUEST_ENABLE);//ativar o bluetooth caso esteja desligado
+      startActivityForResult(ativarBluetooth,ATIVA_BLUETOOTH);
+  }    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch(requestCode){
@@ -135,6 +131,12 @@ public class MainActivity extends AppCompatActivity {
                 if(resultCode == Activity.RESULT_OK){
                     MAC = data.getExtras().getString(ListarDispositivosP.ENDERECO_MAC);
                     Toast.makeText(context,"Mac recebido"+MAC, Toast.LENGTH_SHORT).show();
+                    connect = new ConnectThread(MAC);
+                    connect.start();
+                    Button btnClientConexao= (Button)findViewById(R.id.button_Cliente_Conexao);
+                    btnClientConexao.setText("Desativar");
+
+
 
                 }else {
                     Toast.makeText(context,"Falha ao obter o MAC", Toast.LENGTH_SHORT).show();
@@ -144,7 +146,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    //receber mensagem
+    //receber mensagem de ConnectThread
     public static Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -157,6 +159,18 @@ public class MainActivity extends AppCompatActivity {
                 statusMessage.setText("Ocorreu um erro durante a conexão D:");
             else if(dataString.equals("---S"))
                 statusMessage.setText("Conectado :D");
+            else if(dataString.equals("---C"))
+                statusMessage.setText("Servidor Ativado, Canal OK");
+            else if(dataString.equals("---D")) {
+                statusMessage.setText("Servidor desativado");
+                statusCliente.setText("Cliente desconectado");
+
+            } else if(dataString.equals("---CLIENT"))
+                statusCliente.setText("Conectado em;"+MAC);
+            else if(dataString.equals("---CLIERRO"))
+                statusCliente.setText("Erro ao se conecta a "+MAC);
+            else if (dataString.equals("---B"))
+                statusMessage.setText("Servidor ativado(Socket Excluido)");
             else {
 
                 textSpace.setText(new String(data));

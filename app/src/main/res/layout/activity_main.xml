@@ -9,22 +9,6 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.hb.handersonsilva.comunicadorbluetooth.MainActivity">
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Verificar Ativação"
-        android:id="@+id/button_verificar"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/button_Conectar"
-        android:layout_below="@+id/button_verificar"
-        android:layout_centerHorizontal="true"
-        android:text="Procurar" />
-
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -35,31 +19,49 @@
         android:layout_toEndOf="@+id/button_AtivarServer" />
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/textView_textData"
-        android:text="----"
-        android:layout_below="@+id/button_AtivarServer"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
-
-    <Button
-        android:text="Ativar Server"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/button_AtivarServer"
-        android:layout_marginTop="19dp"
-        android:layout_below="@+id/button_Conectar"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
-
-    <TextView
-        android:text="Servidor------------------------------------"
+        android:text="Servidor---------------------------------------------------------"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/button_Conectar"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:id="@+id/textView3" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/button_Cliente_Conexao"
+        android:layout_toRightOf="@+id/button_Cliente_Conexao"
+        android:layout_toEndOf="@+id/button_Cliente_Conexao"
+        android:layout_marginBottom="10dp"
+        android:id="@+id/textView_statusClient" />
+
+    <TextView
+        android:text="Cliente------------------------------------------------------------"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/button_AtivarServer"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="15dp" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/button_Cliente_Conexao"
+        android:text="Cliente"
+        android:layout_below="@+id/textView4"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="95dp" />
+
+    <Button
+        android:text="Ativar Server"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/button_AtivarServer"
+        android:layout_below="@+id/textView3"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
 </RelativeLayout>
