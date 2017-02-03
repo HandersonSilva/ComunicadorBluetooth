@@ -12,6 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -32,7 +33,8 @@ public class MainActivity extends AppCompatActivity {
     private  static String MAC = null;
     static TextView statusMessage;
     static  TextView statusCliente;
-    static TextView textSpace;
+    static TextView textRecebido;
+    static  TextView textStatusSocket;
     ConnectThread connect;
 
     @Override
@@ -42,8 +44,11 @@ public class MainActivity extends AppCompatActivity {
 
             Button btnClientConexao= (Button)findViewById(R.id.button_Cliente_Conexao);
             Button btnConectar = (Button)findViewById(R.id.button_AtivarServer);
+            Button btnEnviaMsg = (Button)findViewById(R.id.button_enviarMsg);
             statusMessage = (TextView)findViewById(R.id.textView_StatusM);
             statusCliente = (TextView)findViewById(R.id.textView_statusClient);
+            textRecebido = (TextView)findViewById(R.id.textView_textRecebido);
+            textStatusSocket = (TextView)findViewById(R.id.textView_statusSocket);
             context = getApplicationContext();
 
             //Solicita que o bluetooth seja ligado caso contrario fecha o app
@@ -56,14 +61,11 @@ public class MainActivity extends AppCompatActivity {
                   Button btnClientConexao= (Button)findViewById(R.id.button_Cliente_Conexao);
                  if(conexao){
                      if (opButton == 0) {
-                        // if(connect.isAlive()){
-                             connect.cancel();
-                             btnClientConexao.setText("Ativar Cliente");
-                             opButton=1;
+                         connect.cancel();
+                         btnClientConexao.setText("Ativar Cliente");
+                         opButton=1;
 
-                        /* }else{
-                             Toast.makeText(getApplicationContext(),"Não existe conexao",Toast.LENGTH_SHORT).show();
-                         }*/
+
 
                      } else {
 
@@ -90,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
                             connect = new ConnectThread();
                     } else {
                             connect = new ConnectThread();
-                             connect.start();
+                            connect.start();
                             if(connect.isAlive()){
                                 btnConectar.setText("Desativar");
                                 opButton =0;
@@ -102,6 +104,16 @@ public class MainActivity extends AppCompatActivity {
                             }
 
                     }
+                }
+            });
+
+            btnEnviaMsg.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    EditText myText = (EditText)findViewById(R.id.editText_textoSend);
+                    String myTextString = myText.getText().toString();
+                    byte[] data = myTextString.getBytes();//converter uma string em bytes
+                    connect.write(data);
                 }
             });
     }
@@ -171,9 +183,11 @@ public class MainActivity extends AppCompatActivity {
                 statusCliente.setText("Erro ao se conecta a "+MAC);
             else if (dataString.equals("---B"))
                 statusMessage.setText("Servidor ativado(Socket Excluido)");
+            else if (dataString.equals("---CONECTADO"))
+                textStatusSocket.setText("CONECTADO COM "+MAC);
             else {
 
-                textSpace.setText(new String(data));
+                textRecebido.setText(new String(data));
             }
         }
     };

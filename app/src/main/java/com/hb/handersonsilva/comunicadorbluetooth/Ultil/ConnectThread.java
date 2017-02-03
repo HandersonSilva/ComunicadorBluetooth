@@ -10,7 +10,12 @@ import android.os.Message;
 import com.hb.handersonsilva.comunicadorbluetooth.MainActivity;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.UUID;
+
+import static android.R.id.input;
 
 /**
  * Created by HB on 26/01/2017.
@@ -21,6 +26,8 @@ public class ConnectThread extends Thread{
     BluetoothServerSocket myServerSocket =null;
     BluetoothSocket myBtSocket =null;
     BluetoothAdapter myBluetoothAdapter=null;
+    InputStream inputData = null;
+    OutputStream outputData = null;
     String btAdress = null;
     String myUUID ="00001101-0000-1000-8000-00805F9B34FB";
     Boolean server = false;
@@ -92,6 +99,61 @@ public class ConnectThread extends Thread{
                 toMainActivity("---CLIERRO".getBytes());
             }
 
+        }
+
+        if(myBtSocket!=null){
+            //Mandar mensagem para activity principal avisando que estar conectado
+            toMainActivity("---CONECTADO".getBytes());
+
+            try {
+                  /*  Obtem referências para os fluxos de entrada e saída do
+                socket Bluetooth.
+                 */
+                 inputData = myBtSocket.getInputStream();
+                 outputData = myBtSocket.getOutputStream();
+
+                /*  Cria um byte array para armazenar temporariamente uma
+                mensagem recebida.
+                    O inteiro bytes representará o número de bytes lidos na
+                última mensagem recebida.
+                 */
+                 byte[] buffer = new byte[1024];
+                 int bytes;
+
+                //permanece escutando
+                while(running) {
+
+                    bytes = inputData.read(buffer);
+                    toMainActivity(Arrays.copyOfRange(buffer, 0, bytes));
+
+                }
+
+            }catch (IOException erro){
+
+            }
+
+
+
+        }
+    }
+        //funcão que enviar mensagem para o outro dispositivo
+    public void write(byte[] data) {
+
+        if(outputData != null) {
+            try {
+
+                /*  Transmite a mensagem.
+                 */
+                outputData.write(data);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+
+            /*  Envia à Activity principal um código de erro durante a conexão.
+             */
+            toMainActivity("---N".getBytes());
         }
     }
 
