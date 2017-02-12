@@ -106,4 +106,24 @@
         android:layout_below="@+id/textView_statusClient"
         android:layout_centerHorizontal="true" />
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/button_audioGravar"
+        android:background="@android:drawable/presence_audio_online"
+        android:layout_below="@+id/frameLayout"
+        android:layout_alignRight="@+id/button_AtivarServer"
+        android:layout_alignEnd="@+id/button_AtivarServer" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/frameLayout"
+        android:layout_toRightOf="@+id/textView_StatusM"
+        android:layout_toEndOf="@+id/textView_StatusM"
+        android:layout_marginLeft="29dp"
+        android:layout_marginStart="29dp"
+        android:id="@+id/button_sendAudio"
+        android:background="@android:drawable/ic_menu_send" />
+
 </RelativeLayout>

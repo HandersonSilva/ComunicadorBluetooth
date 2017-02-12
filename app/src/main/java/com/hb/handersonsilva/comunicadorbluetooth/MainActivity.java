@@ -1,15 +1,22 @@
 package com.hb.handersonsilva.comunicadorbluetooth;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.LoaderManager;
+import android.content.pm.PackageManager;
+import android.media.MediaPlayer;
+import android.media.MediaRecorder;
 import android.os.Handler;
 import android.os.Bundle;
 import android.os.Message;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -21,7 +28,11 @@ import com.hb.handersonsilva.comunicadorbluetooth.Ultil.Bluetooth;
 import com.hb.handersonsilva.comunicadorbluetooth.Ultil.ConnectThread;
 import com.hb.handersonsilva.comunicadorbluetooth.Ultil.ListarDispositivosP;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 public class MainActivity extends AppCompatActivity {
     BluetoothAdapter mBluetoothAdapter= null;
@@ -29,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int ATIVA_BLUETOOTH =1;
     private static final int ABRIR_LISTA =2;
     private  int opButton = 1;
+    private boolean startRec=false;
     final  boolean conexao = true;
     private  static String MAC = null;
     static TextView statusMessage;
@@ -36,6 +48,13 @@ public class MainActivity extends AppCompatActivity {
     static TextView textRecebido;
     static  TextView textStatusSocket;
     ConnectThread connect;
+    private static final String LOG_TAG = "AudioRecordTest";
+    private static final int REQUEST_RECORD_AUDIO_PERMISSION = 200;
+    private static String mFileName = null;
+    private MediaRecorder mRecorder = null;
+    private MediaPlayer mPlayer = null;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +64,9 @@ public class MainActivity extends AppCompatActivity {
             Button btnClientConexao= (Button)findViewById(R.id.button_Cliente_Conexao);
             Button btnConectar = (Button)findViewById(R.id.button_AtivarServer);
             Button btnEnviaMsg = (Button)findViewById(R.id.button_enviarMsg);
+            Button btnGravarAudio = (Button)findViewById(R.id.button_audioGravar);
+            Button btnEnviardAudio = (Button)findViewById(R.id.button_sendAudio);
+
             statusMessage = (TextView)findViewById(R.id.textView_StatusM);
             statusCliente = (TextView)findViewById(R.id.textView_statusClient);
             textRecebido = (TextView)findViewById(R.id.textView_textRecebido);
@@ -53,7 +75,11 @@ public class MainActivity extends AppCompatActivity {
 
             //Solicita que o bluetooth seja ligado caso contrario fecha o app
             this.ativarBluetooth();
-           //Instanciando a class ConnectThread
+
+            //Setar o caminho onde sera salvo o arquivo de audio
+           mFileName = getExternalCacheDir().getAbsolutePath();
+           mFileName += "/audiorecordtest.mp3";
+
 
           btnClientConexao.setOnClickListener(new View.OnClickListener() {
               @Override
@@ -116,7 +142,57 @@ public class MainActivity extends AppCompatActivity {
                     connect.write(data);
                 }
             });
+
+            //Button Gravar
+        btnGravarAudio.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Button btnGravarAudio = (Button)findViewById(R.id.button_audioGravar);
+                if(startRec){
+                    stopRecording();
+                    btnGravarAudio.setText(" ");
+                    Toast.makeText(getApplicationContext(),"Caminho"+mFileName,Toast.LENGTH_LONG).show();
+                }else {
+                    btnGravarAudio.setText("GRAVANDO");
+                    startRecording();
+
+                    startRec=true;
+                }
+            }
+        });
+        //Button parar a gravação
+        btnEnviardAudio.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //implementar
+            }
+        });
     }
+
+
+    //GRAVAR AUDIO
+    private void startRecording() {
+        mRecorder = new MediaRecorder();
+        mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+        mRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);//formato mp3
+        mRecorder.setOutputFile(mFileName);
+        mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+
+        try {
+            mRecorder.prepare();
+        } catch (IOException e) {
+            Log.e(LOG_TAG, "prepare() failed");
+        }
+
+        mRecorder.start();
+    }
+    //PARAR A GRAVAÇÃO
+    private void stopRecording() {
+        mRecorder.stop();
+        mRecorder.release();
+        mRecorder = null;
+
+   }
 
   public void ativarBluetooth()
   {
