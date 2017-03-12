@@ -8,10 +8,12 @@ import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.os.Handler;
 import android.os.Bundle;
+import android.os.Looper;
 import android.os.Message;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -20,19 +22,26 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.hb.handersonsilva.comunicadorbluetooth.Ultil.Bluetooth;
 import com.hb.handersonsilva.comunicadorbluetooth.Ultil.ConnectThread;
+import com.hb.handersonsilva.comunicadorbluetooth.Ultil.EfeitoThread;
 import com.hb.handersonsilva.comunicadorbluetooth.Ultil.ListarDispositivosP;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+
+import static android.R.attr.data;
+import static android.R.attr.delay;
 
 public class MainActivity extends AppCompatActivity {
     BluetoothAdapter mBluetoothAdapter= null;
@@ -45,14 +54,24 @@ public class MainActivity extends AppCompatActivity {
     private  static String MAC = null;
     static TextView statusMessage;
     static  TextView statusCliente;
-    static TextView textRecebido;
     static  TextView textStatusSocket;
+    static TextView statusconexao;
     ConnectThread connect;
+    static EfeitoThread efeitoImageView;
     private static final String LOG_TAG = "AudioRecordTest";
     private static final int REQUEST_RECORD_AUDIO_PERMISSION = 200;
     private static String mFileName = null;
     private MediaRecorder mRecorder = null;
     private MediaPlayer mPlayer = null;
+    private  boolean cont=true;
+    private MediaPlayer mp=null;
+    private  boolean play;
+    static boolean conectado=false;
+    static MediaPlayer mediaPlayer = new MediaPlayer();
+    static   File tempMp3;
+    static ImageView mostrarAudio;
+    //final Handler handle = new Handler(Looper.getMainLooper());
+
 
 
 
@@ -63,22 +82,34 @@ public class MainActivity extends AppCompatActivity {
 
             Button btnClientConexao= (Button)findViewById(R.id.button_Cliente_Conexao);
             Button btnConectar = (Button)findViewById(R.id.button_AtivarServer);
-            Button btnEnviaMsg = (Button)findViewById(R.id.button_enviarMsg);
-            Button btnGravarAudio = (Button)findViewById(R.id.button_audioGravar);
-            Button btnEnviardAudio = (Button)findViewById(R.id.button_sendAudio);
+            Button btnGravarAudio = (Button)findViewById(R.id.btn_gravarAudio);
 
             statusMessage = (TextView)findViewById(R.id.textView_StatusM);
             statusCliente = (TextView)findViewById(R.id.textView_statusClient);
-            textRecebido = (TextView)findViewById(R.id.textView_textRecebido);
             textStatusSocket = (TextView)findViewById(R.id.textView_statusSocket);
+            statusconexao = (TextView)findViewById(R.id.textView_statusConexao);
+            mostrarAudio = (ImageView)findViewById(R.id.imageView_mostrarAudio);
             context = getApplicationContext();
 
             //Solicita que o bluetooth seja ligado caso contrario fecha o app
             this.ativarBluetooth();
 
             //Setar o caminho onde sera salvo o arquivo de audio
-           mFileName = getExternalCacheDir().getAbsolutePath();
-           mFileName += "/audiorecordtest.mp3";
+            mFileName = getExternalCacheDir().getAbsolutePath();
+            mFileName += "/audiorecordtest.mp3";
+          //Caminho do audio temporario para reprodução
+            try {
+                tempMp3 = File.createTempFile("testePlay", "mp3", getCacheDir());
+            }catch (IOException erro)
+            {
+                String s = erro.toString();
+                erro.printStackTrace();
+            }
+
+            //Efeito para quando receber o audio
+            play = true;
+            efeitoImageView = new EfeitoThread(play);
+            efeitoImageView.start();
 
 
           btnClientConexao.setOnClickListener(new View.OnClickListener() {
@@ -133,40 +164,51 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
 
-            btnEnviaMsg.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    EditText myText = (EditText)findViewById(R.id.editText_textoSend);
-                    String myTextString = myText.getText().toString();
-                    byte[] data = myTextString.getBytes();//converter uma string em bytes
-                    connect.write(data);
-                }
-            });
-
-            //Button Gravar
         btnGravarAudio.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Button btnGravarAudio = (Button)findViewById(R.id.button_audioGravar);
+                Button btnPressGravar = (Button)findViewById(R.id.btn_gravarAudio);
+
                 if(startRec){
+                    somPrarGravar();
+                    btnPressGravar.setBackgroundResource(R.drawable.btn_gravar1142);
                     stopRecording();
-                    btnGravarAudio.setText(" ");
                     Toast.makeText(getApplicationContext(),"Caminho"+mFileName,Toast.LENGTH_LONG).show();
+                    startRec=false;
                 }else {
-                    btnGravarAudio.setText("GRAVANDO");
+                    boolean c = true;
+
+                    somGravar();
+                    btnPressGravar.setBackgroundResource(R.drawable.btn_gravar2142);
+
                     startRecording();
 
                     startRec=true;
                 }
+
             }
         });
-        //Button parar a gravação
-        btnEnviardAudio.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //implementar
-            }
-        });
+
+
+
+    }
+    //efeito do som
+public void somGravar(){
+    mp= MediaPlayer.create(this, R.raw.gravando);
+    if(mp.isPlaying()){
+        mp.stop();
+    }else {
+        mp.start();
+    }
+
+}
+    public void somPrarGravar(){
+       mp= MediaPlayer.create(this, R.raw.stopgravacao);
+        if(mp.isPlaying()){
+            mp.stop();
+        }else {
+            mp.start();
+        }
     }
 
 
@@ -191,8 +233,39 @@ public class MainActivity extends AppCompatActivity {
         mRecorder.stop();
         mRecorder.release();
         mRecorder = null;
+        //Pegar a gravação e transformar em bytes e enviar para ConnectThread
+        try {
+            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+            File aFile = new File(mFileName);
+            InputStream is = new FileInputStream(aFile);
+            byte[] temp = new byte[1024];
+            int read;
+
+            while((read = is.read(temp)) >= 0){
+                buffer.write(temp, 0, read);
+            }
+
+            byte[] data = buffer.toByteArray();
+            // process the data array . . .
+
+            sendAudio(data);//Enviar para ConnectThread
+        }catch (IOException erro ) {
+            // TODO Auto-generated catch block
+            erro.printStackTrace();
+        }
 
    }
+    //Enviar dados
+    public void sendAudio(byte[] audioEnviar) {
+
+        //if(conectado){
+            byte[] data = audioEnviar;
+
+            connect.write(data);
+       // }
+        //Toast.makeText(getApplicationContext(),"Audio não enviado",Toast.LENGTH_SHORT).show();
+    }
+
 
   public void ativarBluetooth()
   {
@@ -234,7 +307,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    //receber mensagem de ConnectThread
+
+    //receber dados de ConnectThread e EfeitoThread
     public static Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -259,12 +333,48 @@ public class MainActivity extends AppCompatActivity {
                 statusCliente.setText("Erro ao se conecta a "+MAC);
             else if (dataString.equals("---B"))
                 statusMessage.setText("Servidor ativado(Socket Excluido)");
-            else if (dataString.equals("---CONECTADO"))
+            else if (dataString.equals("---CONECTADO")){
+                conectado =true;
                 textStatusSocket.setText("CONECTADO COM "+MAC);
-            else {
-
-                textRecebido.setText(new String(data));
+            } else if (dataString.equals("---M1")){
+                mostrarAudio.setImageResource(R.drawable.mostraraudio1001);
+            }else if (dataString.equals("---M2")){
+                mostrarAudio.setImageResource(R.drawable.mostraraudio1002);
+            }else if (dataString.equals("---M3")){
+                mostrarAudio.setImageResource(R.drawable.mostraraudio1003);
+            }else if (dataString.equals("---M0")){
+               mostrarAudio.setImageResource(R.drawable.mostraraudio1000);
             }
+            else if (dataString.equals("---CONECTADO")){
+               // statusconexao.setText("Conectado Com"+MAC);
+            }
+            else {
+                try {
+                    //tempMp3.deleteOnExit();//Solicita que o arquivo ou diretório indicado por este caminho abstract ser excluído quando a máquina virtual termina.
+                    FileOutputStream fos = new FileOutputStream(tempMp3);
+                    fos.write(data);
+                    fos.close();
+
+                    // resetting mediaplayer instance to evade problems
+
+                    mediaPlayer.reset();
+
+                    // In case you run into issues with threading consider new instance like:
+                    // MediaPlayer mediaPlayer = new MediaPlayer();
+
+                    // Tried passing path directly, but kept getting
+                    // "Prepare failed.: status=0x1"
+                    // so using file descriptor instead
+                    FileInputStream fis = new FileInputStream(tempMp3);
+                    mediaPlayer.setDataSource(fis.getFD());
+
+                    mediaPlayer.prepare();
+                    mediaPlayer.start();
+                } catch (IOException ex) {
+                    String s = ex.toString();
+                    ex.printStackTrace();
+                }
+        }
         }
     };
 }

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -35,24 +36,6 @@
         android:layout_marginBottom="10dp"
         android:id="@+id/textView_statusClient" />
 
-    <TextView
-        android:text="Cliente------------------------------------------------------------"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/button_AtivarServer"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="15dp" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/button_Cliente_Conexao"
-        android:text="Cliente"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="95dp" />
-
     <Button
         android:text="Ativar Server"
         android:layout_width="wrap_content"
@@ -61,43 +44,6 @@
         android:layout_below="@+id/textView3"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
-
-    <Button
-        android:text="Enviar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/button_enviarMsg"
-        android:layout_below="@+id/frameLayout"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="60dp" />
-
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:inputType="textPersonName"
-        android:ems="10"
-        android:id="@+id/editText_textoSend"
-        android:layout_below="@+id/button_enviarMsg"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
-
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:background="#EEE9E9"
-        android:id="@+id/frameLayout"
-        android:layout_below="@+id/textView_statusSocket"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/textView_textRecebido" />
-    </FrameLayout>
 
     <TextView
         android:layout_width="wrap_content"
@@ -109,21 +55,48 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/button_audioGravar"
-        android:background="@android:drawable/presence_audio_online"
-        android:layout_below="@+id/frameLayout"
-        android:layout_alignRight="@+id/button_AtivarServer"
-        android:layout_alignEnd="@+id/button_AtivarServer" />
+        android:id="@+id/button_Cliente_Conexao"
+        android:text="Cliente"
+        android:layout_marginTop="51dp"
+        android:layout_below="@+id/button_AtivarServer"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:text="Cliente------------------------------------------------------------"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/textView_statusClient"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="21dp"
+        android:id="@+id/textView" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/frameLayout"
-        android:layout_toRightOf="@+id/textView_StatusM"
-        android:layout_toEndOf="@+id/textView_StatusM"
-        android:layout_marginLeft="29dp"
-        android:layout_marginStart="29dp"
-        android:id="@+id/button_sendAudio"
-        android:background="@android:drawable/ic_menu_send" />
+        android:background="@drawable/btn_gravar1142"
+        android:layout_marginBottom="16dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/btn_gravarAudio" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/mostraraudio1000"
+        android:id="@+id/imageView_mostrarAudio"
+        android:layout_below="@+id/textView_statusSocket"
+        android:layout_toLeftOf="@+id/btn_gravarAudio"
+        android:layout_toStartOf="@+id/btn_gravarAudio" />
+
+    <TextView
+        android:text="Desconectado"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/button_Cliente_Conexao"
+        android:layout_alignLeft="@+id/imageView_mostrarAudio"
+        android:layout_alignStart="@+id/imageView_mostrarAudio"
+        android:id="@+id/textView_statusConexao" />
 
 </RelativeLayout>

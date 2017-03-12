@@ -9,6 +9,7 @@ import android.os.Message;
 
 import com.hb.handersonsilva.comunicadorbluetooth.MainActivity;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -32,6 +33,8 @@ public class ConnectThread extends Thread{
     String myUUID ="00001101-0000-1000-8000-00805F9B34FB";
     Boolean server = false;
     Boolean running = false;
+    boolean conectado=false;
+    static File tempMp3;
 
     //Construto do server
     public ConnectThread(){
@@ -104,6 +107,7 @@ public class ConnectThread extends Thread{
         if(myBtSocket!=null){
             //Mandar mensagem para activity principal avisando que estar conectado
             toMainActivity("---CONECTADO".getBytes());
+            conectado = true;
 
             try {
                   /*  Obtem referências para os fluxos de entrada e saída do
@@ -136,6 +140,9 @@ public class ConnectThread extends Thread{
 
         }
     }
+    public boolean Conectado(){
+        return  conectado;
+    }
         //funcão que enviar mensagem para o outro dispositivo
     public void write(byte[] data) {
 
@@ -156,6 +163,8 @@ public class ConnectThread extends Thread{
             toMainActivity("---N".getBytes());
         }
     }
+
+
 
 
     private void toMainActivity(byte[] data) {
